@@ -203,6 +203,9 @@ footer { color: var(--muted); font-size: 12px; padding: 24px 0 40px; border-top:
   function renderSummary(d) {
     var h = '<h1>' + esc(d.issue.slice(0, 4)) + '년 ' + (+d.issue.slice(5)) + '월호 경기경제동향</h1>' +
       '<p class="sub">기준월 ' + esc(ym(d.stat_month)) + ' 자료 (대출은 한 달 전, 심리지수는 조사월 기준)</p>';
+    if (d.rebuilt) {
+      h += '<div class="notice">이 호는 ' + esc(d.rebuilt) + '에 받은 최신 공표값으로 다시 계산했습니다. 이후 개정된 값이 반영되어 당시 발간본과 숫자가 조금 다를 수 있습니다.</div>';
+    }
     if (d.freshness && d.freshness.length) {
       h += '<div class="notice">아직 기준월 자료가 공표되지 않은 표: ' + d.freshness.map(function (f) { return esc(f.name) + '(' + esc(f.last) + '까지)'; }).join(", ") + '</div>';
     }
