@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>경기경제동향 대시보드</title>
+<meta name="description" content="경기도 월간 경제동향: 요약 지표, 부문별 동향과 그래프, 부표 01~11, 보고서 PDF">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="lib/chart.umd.js"></script>
+<script src="data/issues.js"></script>
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f4f5f2; --surface: #fcfcfb; --surface-2: #eef0ec; --line: #dcdfd8;
+  --text: #0b0b0b; --text-2: #52514e; --muted: #7b7a75; --accent: #1c5cab; --accent-soft: #e3eefb;
+  --up: #c0352f; --down: #1c5cab; --warn-bg: #fff6dc; --warn: #7a5600;
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #e87ba4; --s6: #008300; --s7: #6250d6; --s8: #e34948;
+  --grid: #e6e8e3; --ref: #9a9993;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #121211; --surface: #1a1a19; --surface-2: #232321; --line: #34342f;
+    --text: #f0efec; --text-2: #c3c2b7; --muted: #8f8e86; --accent: #6da7ec; --accent-soft: #1d2a3a;
+    --up: #e66767; --down: #6da7ec; --warn-bg: #3a3014; --warn: #f0cf7a;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s6: #0ca30c; --s7: #9085e9; --s8: #e66767;
+    --grid: #2b2b28; --ref: #6f6e68;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #121211; --surface: #1a1a19; --surface-2: #232321; --line: #34342f;
+  --text: #f0efec; --text-2: #c3c2b7; --muted: #8f8e86; --accent: #6da7ec; --accent-soft: #1d2a3a;
+  --up: #e66767; --down: #6da7ec; --warn-bg: #3a3014; --warn: #f0cf7a;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s6: #0ca30c; --s7: #9085e9; --s8: #e66767;
+  --grid: #2b2b28; --ref: #6f6e68;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--text);
+  font: 15px/1.6 "Noto Sans KR", "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif; }
+a { color: var(--accent); }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 0 16px; }
+header.top { background: var(--surface); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 5; }
+.top .wrap { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding-top: 10px; padding-bottom: 10px; }
+.brand { font-weight: 700; font-size: 17px; margin-right: auto; }
+.brand small { display: block; font-weight: 400; font-size: 12px; color: var(--muted); }
+select, button { font: inherit; color: var(--text); background: var(--surface); border: 1px solid var(--line);
+  border-radius: 8px; padding: 6px 10px; }
+button { cursor: pointer; }
+nav.tabs { display: flex; gap: 4px; overflow-x: auto; }
+nav.tabs button { border: 0; background: transparent; color: var(--text-2); padding: 8px 12px; border-radius: 8px; white-space: nowrap; }
+nav.tabs button[aria-selected="true"] { background: var(--accent-soft); color: var(--accent); font-weight: 700; }
+main { padding: 20px 0 48px; }
+h1 { font-size: 22px; margin: 4px 0 4px; }
+h2 { font-size: 18px; margin: 28px 0 10px; }
+.sub { color: var(--text-2); margin: 0 0 16px; }
+.hero { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 16px 0 8px; }
+.hero div { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+.hero b { display: block; font-size: 13px; color: var(--text-2); font-weight: 500; }
+.hero span { font-size: 22px; font-weight: 700; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; min-width: 0; }
+.card h3 { font-size: 15px; margin: 0 0 8px; }
+.kv { display: flex; justify-content: space-between; gap: 12px; padding: 5px 0; border-top: 1px solid var(--surface-2); font-size: 14px; }
+.kv:first-of-type { border-top: 0; }
+.kv span:first-child { color: var(--text-2); }
+.kv span:last-child { font-weight: 500; text-align: right; font-variant-numeric: tabular-nums; }
+.kv em { font-style: normal; color: var(--muted); font-size: 12px; margin-left: 4px; }
+.notice { background: var(--warn-bg); color: var(--warn); border-radius: 10px; padding: 10px 14px; font-size: 14px; margin: 12px 0; }
+.secnav { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 8px; }
+.secnav a { text-decoration: none; font-size: 13px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; color: var(--text-2); background: var(--surface); }
+section.sec { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; margin: 16px 0; scroll-margin-top: 80px; }
+.sec-h { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; border-bottom: 2px solid var(--accent); padding-bottom: 6px; margin-bottom: 10px; }
+.sec-h h2 { margin: 0; }
+.sec-h small { color: var(--muted); }
+.headline { font-weight: 700; margin: 12px 0 4px; }
+ul.bul { margin: 0 0 6px; padding-left: 20px; color: var(--text-2); }
+ul.bul li { margin: 2px 0; }
+.charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 460px), 1fr)); gap: 14px; margin-top: 14px; }
+.chart { border: 1px solid var(--surface-2); border-radius: 10px; padding: 10px 12px; min-width: 0; }
+.chart h4 { font-size: 14px; margin: 0 0 2px; }
+.chart .unit { font-size: 12px; color: var(--muted); margin: 6px 0 2px; }
+.chart .cv { position: relative; height: 230px; }
+.chart .cv.short { height: 150px; }
+.chart .cv.tall { height: 300px; }
+.chart-tools { display: flex; justify-content: flex-end; gap: 10px; margin-top: 4px; }
+.chart-tools button { font-size: 12px; padding: 2px 8px; border-radius: 6px; color: var(--text-2); }
+.tbl-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; margin: 8px 0 14px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 13px; font-variant-numeric: tabular-nums; }
+th, td { padding: 5px 8px; border-bottom: 1px solid var(--surface-2); text-align: right; white-space: nowrap; }
+th { background: var(--surface-2); color: var(--text-2); font-weight: 500; position: sticky; top: 0; }
+th:first-child, td:first-child { text-align: left; position: sticky; left: 0; background: var(--surface); }
+th:first-child { background: var(--surface-2); z-index: 1; }
+tr.sep td { border-top: 2px solid var(--line); }
+.apx-pick { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 4px; }
+.apx-pick button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); font-weight: 700; }
+.blkname { font-size: 13px; color: var(--muted); margin: 10px 0 0; }
+.dl { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+.dl a.card { text-decoration: none; color: var(--text); display: block; }
+.dl a.card:hover { border-color: var(--accent); }
+.dl small { color: var(--muted); }
+footer { color: var(--muted); font-size: 12px; padding: 24px 0 40px; border-top: 1px solid var(--line); }
+.hidden { display: none !important; }
+@media (max-width: 600px) {
+  .brand { width: 100%; }
+  section.sec { padding: 14px; }
+  .chart .cv { height: 210px; }
+}
+@media print {
+  header.top, .chart-tools, nav.tabs { display: none; }
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="brand">경기경제동향 대시보드<small id="madeAt"></small></div>
+    <label>발간호 <select id="issueSel" aria-label="발간호 선택"></select></label>
+    <button id="themeBtn" type="button" aria-label="밝게/어둡게 전환">◐</button>
+  </div>
+  <div class="wrap"><nav class="tabs" role="tablist">
+    <button role="tab" data-tab="sum" aria-selected="true">요약</button>
+    <button role="tab" data-tab="sec">부문별 동향</button>
+    <button role="tab" data-tab="apx">부표 01~11</button>
+    <button role="tab" data-tab="dl">보고서·자료 내려받기</button>
+  </nav></div>
+</header>
+<main class="wrap">
+  <div id="loading">불러오는 중…</div>
+  <div id="tab-sum" class="hidden"></div>
+  <div id="tab-sec" class="hidden"></div>
+  <div id="tab-apx" class="hidden"></div>
+  <div id="tab-dl" class="hidden"></div>
+</main>
+<footer class="wrap">
+  자료: 국가데이터처(KOSIS), 한국은행, 한국무역협회(K-stat), 국토교통부. 숫자와 문장은 공표 원자료로 자동 계산했으며 원인 해설은 넣지 않았습니다.
+  잠정치는 'p'로 표시하며 이후 개정될 수 있습니다.
+</footer>
+<script>
+(function () {
+  "use strict";
+  var $ = function (s, el) { return (el || document).querySelector(s); };
+  var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+  var issues = window.GGISSUES || [];
+  var charts = [];
+  var state = { issue: null, tab: "sum", apx: null };
+
+  // ---- 테마
+  try { var t = localStorage.getItem("gg-theme"); if (t) document.documentElement.setAttribute("data-theme", t); } catch (e) {}
+  $("#themeBtn").onclick = function () {
+    var dark = getComputedStyle(document.documentElement).colorScheme.indexOf("dark") >= 0;
+    var next = dark ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", next);
+    try { localStorage.setItem("gg-theme", next); } catch (e) {}
+    if (state.issue) renderSections(window.GGDATA[state.issue]);
+  };
+  var css = function (v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); };
+
+  // ---- 발간호
+  var sel = $("#issueSel");
+  issues.forEach(function (x) {
+    var o = document.createElement("option");
+    o.value = x.issue; o.textContent = x.issue.slice(0, 4) + "년 " + (+x.issue.slice(5)) + "월호";
+    sel.appendChild(o);
+  });
+  if (window.GGMADE) $("#madeAt").textContent = "갱신 " + window.GGMADE;
+  sel.onchange = function () { loadIssue(sel.value); };
+
+  document.querySelectorAll("nav.tabs button").forEach(function (b) {
+    b.onclick = function () { showTab(b.getAttribute("data-tab")); };
+  });
+  function showTab(tab) {
+    state.tab = tab;
+    document.querySelectorAll("nav.tabs button").forEach(function (b) { b.setAttribute("aria-selected", b.getAttribute("data-tab") === tab); });
+    ["sum", "sec", "apx", "dl"].forEach(function (k) { $("#tab-" + k).classList.toggle("hidden", k !== tab); });
+    try { history.replaceState(null, "", "#" + state.issue + "/" + tab); } catch (e) {}
+    if (tab === "sec") charts.forEach(function (c) { c.resize(); });
+  }
+
+  function loadIssue(issue) {
+    state.issue = issue; sel.value = issue;
+    window.GGDATA = window.GGDATA || {};
+    if (window.GGDATA[issue]) return render(window.GGDATA[issue]);
+    $("#loading").classList.remove("hidden");
+    var s = document.createElement("script");
+    s.src = "data/" + issue + ".js";
+    s.onload = function () { render(window.GGDATA[issue]); };
+    s.onerror = function () { $("#loading").textContent = issue + "호 자료를 불러오지 못했습니다."; };
+    document.head.appendChild(s);
+  }
+
+  function ym(m) { return m.slice(0, 4) + "년 " + (+m.slice(5)) + "월"; }
+
+  function render(d) {
+    $("#loading").classList.add("hidden");
+    renderSummary(d); renderSections(d); renderAppendix(d); renderDownloads(d);
+    showTab(state.tab);
+  }
+
+  // ---- 요약
+  function renderSummary(d) {
+    var h = '<h1>' + esc(d.issue.slice(0, 4)) + '년 ' + (+d.issue.slice(5)) + '월호 경기경제동향</h1>' +
+      '<p class="sub">기준월 ' + esc(ym(d.stat_month)) + ' 자료 (대출은 한 달 전, 심리지수는 조사월 기준)</p>';
+    if (d.freshness && d.freshness.length) {
+      h += '<div class="notice">아직 기준월 자료가 공표되지 않은 표: ' + d.freshness.map(function (f) { return esc(f.name) + '(' + esc(f.last) + '까지)'; }).join(", ") + '</div>';
+    }
+    if (d.cover && d.cover.length) {
+      h += '<div class="hero">' + d.cover.map(function (l) {
+        var m = l.match(/^(\d{4}년 \d+월)\s+(.+?)\s+([-+]?[\d,.]+.*)$/);
+        return m ? '<div><b>' + esc(m[2]) + ' · ' + esc(m[1]) + '</b><span>' + esc(m[3]) + '</span></div>' : '<div><span>' + esc(l) + '</span></div>';
+      }).join("") + '</div>';
+    }
+    h += '<h2>부문별 주요 지표</h2><div class="grid">' + d.kpis.map(function (g) {
+      return '<div class="card"><h3>' + esc(g.name) + '</h3>' + g.items.map(function (x) {
+        return '<div class="kv"><span>' + esc(x.label) + '<em>' + esc(x.period) + '</em></span><span>' + esc(x.display) + '</span></div>';
+      }).join("") + '</div>';
+    }).join("") + '</div>';
+    $("#tab-sum").innerHTML = h;
+  }
+
+  // ---- 부문별 동향 + 그래프
+  function renderSections(d) {
+    charts.forEach(function (c) { c.destroy(); }); charts = [];
+    var h = '<div class="secnav">' + d.sections.map(function (s, i) { return '<a href="#" data-go="s' + i + '">' + esc(s.title) + '</a>'; }).join("") + '</div>';
+    d.sections.forEach(function (s, i) {
+      h += '<section class="sec" id="s' + i + '"><div class="sec-h"><h2>' + esc(s.title) + '</h2><small>' + esc(s.src) + '</small></div>';
+      var open = false;
+      s.items.forEach(function (it) {
+        if (it.kind === "headline") { if (open) h += '</ul>'; h += '<p class="headline">■ ' + esc(it.text) + '</p><ul class="bul">'; open = true; }
+        else { if (!open) { h += '<ul class="bul">'; open = true; } h += '<li' + (it.kind === "missing" ? ' style="color:var(--muted)"' : '') + '>' + esc(it.text) + '</li>'; }
+      });
+      if (open) h += '</ul>';
+      h += '<div class="charts">' + s.charts.map(function (cid) { return d.charts[cid] ? chartBox(cid, d.charts[cid]) : ''; }).join("") + '</div></section>';
+    });
+    $("#tab-sec").innerHTML = h;
+    document.querySelectorAll("[data-go]").forEach(function (a) {
+      a.onclick = function (e) { e.preventDefault(); $("#" + a.getAttribute("data-go")).scrollIntoView({ behavior: "smooth" }); };
+    });
+    d.sections.forEach(function (s) { s.charts.forEach(function (cid) { if (d.charts[cid]) drawChart(cid, d.charts[cid]); }); });
+    document.querySelectorAll("[data-tbl]").forEach(function (b) {
+      b.onclick = function () {
+        var cid = b.getAttribute("data-tbl"), box = $("#tbl-" + cid);
+        if (!box.innerHTML) box.innerHTML = chartTable(d.charts[cid]);
+        box.classList.toggle("hidden"); b.textContent = box.classList.contains("hidden") ? "표로 보기" : "표 닫기";
+      };
+    });
+  }
+
+  function chartBox(cid, c) {
+    var many = c.panels.length > 1;
+    return '<div class="chart"><h4>' + esc(c.title) + '</h4>' + c.panels.map(function (p, j) {
+      var cls = p.kind === "hbar" ? "tall" : (many ? "short" : "");
+      return '<div class="unit">' + esc(p.unit) + '</div><div class="cv ' + cls + '"><canvas id="cv-' + cid + '-' + j + '" role="img" aria-label="' + esc(c.title + " " + p.unit) + '"></canvas></div>';
+    }).join("") + '<div class="chart-tools"><button type="button" data-tbl="' + cid + '">표로 보기</button></div><div id="tbl-' + cid + '" class="tbl-wrap hidden"></div></div>';
+  }
+
+  function fmt(v) { return v == null ? "-" : (Math.abs(v) >= 100 ? v.toLocaleString("ko-KR", { maximumFractionDigits: 1 }) : v.toLocaleString("ko-KR", { maximumFractionDigits: 2 })); }
+  function mlabel(m) { return /^\d{4}-\d{2}$/.test(m) ? "'" + m.slice(2, 4) + "." + (+m.slice(5)) : m; }
+
+  function chartTable(c) {
+    var cols = [];
+    c.panels.forEach(function (p) { p.series.forEach(function (s) { cols.push(s); }); });
+    var h = '<table><thead><tr><th>' + (/^\d{4}-/.test(c.labels[0]) ? "월" : "항목") + '</th>' + cols.map(function (s) { return '<th>' + esc(s.name) + '</th>'; }).join("") + '</tr></thead><tbody>';
+    for (var i = c.labels.length - 1; i >= 0; i--) {
+      h += '<tr><td>' + esc(c.labels[i]) + '</td>' + cols.map(function (s) { return '<td>' + fmt(s.data[i]) + '</td>'; }).join("") + '</tr>';
+    }
+    return h + '</tbody></table>';
+  }
+
+  function drawChart(cid, c) {
+    if (!window.Chart) return;
+    var text2 = css("--text-2"), grid = css("--grid"), refc = css("--ref"), surf = css("--surface");
+    var pal = [1, 2, 3, 4, 5, 6, 7, 8].map(function (i) { return css("--s" + i); });
+    c.panels.forEach(function (p, j) {
+      var el = document.getElementById("cv-" + cid + "-" + j);
+      if (!el) return;
+      var off = p.color_offset || 0, hbar = p.kind === "hbar";
+      var ds = p.series.map(function (s, k) {
+        var col = pal[(k + off) % pal.length];
+        var base = { label: s.name, data: s.data, borderColor: col, backgroundColor: col };
+        if (p.kind === "line") return Object.assign(base, { type: "line", borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, pointHitRadius: 8, tension: 0, spanGaps: true });
+        if (hbar) return Object.assign(base, {
+          type: "bar", borderRadius: 4, borderSkipped: false, maxBarThickness: 18,
+          backgroundColor: s.data.map(function (v) { return v != null && v < 0 ? pal[1] : pal[0]; }), borderColor: "transparent"
+        });
+        return Object.assign(base, { type: "bar", borderRadius: 2, borderColor: surf, borderWidth: p.kind === "stack" ? 1 : 0, maxBarThickness: 16, categoryPercentage: 0.85 });
+      });
+      if (p.ref != null && !hbar) {
+        ds.push({ type: "line", label: "기준선 " + p.ref, data: c.labels.map(function () { return p.ref; }), borderColor: refc, borderWidth: 1, borderDash: [4, 3], pointRadius: 0, pointHitRadius: 0, _ref: true });
+      }
+      var tickX = { color: text2, font: { size: 11 }, autoSkip: true, maxRotation: 0, callback: function (v, i) { return mlabel(c.labels[i]); } };
+      var opts = {
+        responsive: true, maintainAspectRatio: false, animation: false,
+        interaction: { mode: hbar ? "nearest" : "index", intersect: hbar, axis: hbar ? "y" : "x" },
+        indexAxis: hbar ? "y" : "x",
+        plugins: {
+          legend: { display: p.series.length > 1, position: "bottom", labels: { color: text2, boxWidth: 12, boxHeight: 12, font: { size: 12 }, filter: function (it, data) { return !data.datasets[it.datasetIndex]._ref; } } },
+          tooltip: { filter: function (it) { return !it.dataset._ref; }, callbacks: { label: function (it) { return " " + it.dataset.label + ": " + fmt(it.raw); } } }
+        },
+        scales: hbar ? {
+          x: { grid: { color: grid }, ticks: { color: text2, font: { size: 11 } }, border: { display: false } },
+          y: { grid: { display: false }, ticks: { color: text2, font: { size: 12 } } }
+        } : {
+          x: { stacked: p.kind === "stack", grid: { display: false }, ticks: tickX },
+          y: { stacked: p.kind === "stack", grid: { color: grid }, ticks: { color: text2, font: { size: 11 } }, border: { display: false } }
+        }
+      };
+      charts.push(new Chart(el, { data: { labels: c.labels, datasets: ds }, options: opts }));
+    });
+  }
+
+  // ---- 부표
+  function renderAppendix(d) {
+    if (!state.apx || !d.appendix.some(function (t) { return t.no === state.apx; })) state.apx = d.appendix.length ? d.appendix[0].no : null;
+    var h = '<h1>경제동향 주요지표 (부표 01~11)</h1><p class="sub">경기도 기준. 연·분기·월 순서로 보여 줍니다. 오른쪽으로 밀어 보세요.</p><div class="apx-pick">' +
+      d.appendix.map(function (t) { return '<button type="button" data-apx="' + esc(t.no) + '" aria-pressed="' + (t.no === state.apx) + '">' + esc(t.no) + ' ' + esc(t.title) + '</button>'; }).join("") + '</div><div id="apxBody"></div>';
+    $("#tab-apx").innerHTML = h;
+    document.querySelectorAll("[data-apx]").forEach(function (b) {
+      b.onclick = function () { state.apx = b.getAttribute("data-apx"); renderAppendix(d); };
+    });
+    var t = d.appendix.filter(function (x) { return x.no === state.apx; })[0];
+    if (!t) return;
+    var b = '<h2>부표 ' + esc(t.no) + '. ' + esc(t.title) + ' <small style="font-weight:400;color:var(--muted)">(' + esc(t.unit) + ')</small></h2>';
+    t.blocks.forEach(function (blk) {
+      if (blk.name) b += '<p class="blkname">' + esc(blk.name) + '</p>';
+      b += '<div class="tbl-wrap"><table><thead><tr><th>기간</th>' + blk.cols.map(function (c) { return '<th>' + esc(c) + '</th>'; }).join("") + '</tr></thead><tbody>';
+      var prev = null;
+      blk.rows.forEach(function (r) {
+        b += '<tr' + (prev && prev !== r.t ? ' class="sep"' : '') + '><td>' + esc(r.p) + '</td>' + r.v.map(function (v) { return '<td>' + esc(v) + '</td>'; }).join("") + '</tr>';
+        prev = r.t;
+      });
+      b += '</tbody></table></div>';
+    });
+    $("#apxBody").innerHTML = b;
+  }
+
+  // ---- 내려받기
+  function renderDownloads(d) {
+    var f = d.files || {}, h = '<h1>보고서·자료 내려받기</h1><p class="sub">' + esc(d.issue.slice(0, 4)) + '년 ' + (+d.issue.slice(5)) + '월호</p><div class="dl">';
+    if (f.pdf) h += '<a class="card" href="' + encodeURI(f.pdf) + '" download><h3>보고서 PDF</h3><small>표지·요약·부문별 동향·그래프·부표 전체</small></a>';
+    if (f.zip) h += '<a class="card" href="' + encodeURI(f.zip) + '" download><h3>숫자 자료 (CSV 묶음)</h3><small>부표 01~11, 요약 지표, 그래프 22개 자료. 엑셀에서 바로 열립니다.</small></a>';
+    h += '</div><h2>다른 발간호</h2><div class="dl">' + issues.map(function (x) {
+      return '<a class="card" href="#' + x.issue + '/sum" data-iss="' + x.issue + '"><h3>' + x.issue.slice(0, 4) + '년 ' + (+x.issue.slice(5)) + '월호</h3><small>기준월 ' + esc(ym(x.stat_month)) + '</small></a>';
+    }).join("") + '</div>';
+    $("#tab-dl").innerHTML = h;
+    document.querySelectorAll("[data-iss]").forEach(function (a) {
+      a.onclick = function (e) { e.preventDefault(); state.tab = "sum"; loadIssue(a.getAttribute("data-iss")); window.scrollTo(0, 0); };
+    });
+  }
+
+  // ---- 시작
+  if (!issues.length) { $("#loading").textContent = "아직 올라온 발간호가 없습니다."; return; }
+  var hash = (location.hash || "").slice(1).split("/");
+  var start = issues.some(function (x) { return x.issue === hash[0]; }) ? hash[0] : issues[0].issue;
+  if (["sum", "sec", "apx", "dl"].indexOf(hash[1]) >= 0) state.tab = hash[1];
+  loadIssue(start);
+})();
+</script>
+</body>
+</html>
