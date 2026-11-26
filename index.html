@@ -12,29 +12,30 @@
 <style>
 :root {
   color-scheme: light;
-  --bg: #f4f5f2; --surface: #fcfcfb; --surface-2: #eef0ec; --line: #dcdfd8;
-  --text: #0b0b0b; --text-2: #52514e; --muted: #7b7a75; --accent: #1c5cab; --accent-soft: #e3eefb;
-  --up: #c0352f; --down: #1c5cab; --warn-bg: #fff6dc; --warn: #7a5600;
-  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #e87ba4; --s6: #008300; --s7: #6250d6; --s8: #e34948;
-  --grid: #e6e8e3; --ref: #9a9993;
+  /* 경기연구원 CI: 파랑 #004B8E(PANTONE 288 C 계열) · 주황 #F8981D(PANTONE 144 C 계열) — core/theme.py 와 같은 값 */
+  --bg: #f3f6f9; --surface: #ffffff; --surface-2: #edf2f7; --line: #d5dde6;
+  --text: #1a1f24; --text-2: #4a5058; --muted: #7a8088; --accent: #004b8e; --accent-soft: #eaf1f8; --accent-2: #f8981d;
+  --up: #c0352f; --down: #004b8e; --warn-bg: #fff4e3; --warn: #8a4b00;
+  --s1: #004b8e; --s2: #f8981d; --s3: #2e9e7a; --s4: #7a5bb5; --s5: #5aa6de; --s6: #b5485d; --s7: #a9c6e4; --s8: #8a939b;
+  --grid: #e3e9ef; --ref: #8a939b;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
-    --bg: #121211; --surface: #1a1a19; --surface-2: #232321; --line: #34342f;
-    --text: #f0efec; --text-2: #c3c2b7; --muted: #8f8e86; --accent: #6da7ec; --accent-soft: #1d2a3a;
-    --up: #e66767; --down: #6da7ec; --warn-bg: #3a3014; --warn: #f0cf7a;
-    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s6: #0ca30c; --s7: #9085e9; --s8: #e66767;
-    --grid: #2b2b28; --ref: #6f6e68;
+    --bg: #0f141a; --surface: #161d25; --surface-2: #1e2731; --line: #2c3a48;
+    --text: #eef2f6; --text-2: #c0c8d1; --muted: #8b95a0; --accent: #6fb0ec; --accent-soft: #15283c; --accent-2: #f8a33a;
+    --up: #e66767; --down: #6fb0ec; --warn-bg: #3a2a12; --warn: #f5c27a;
+    --s1: #5aa6de; --s2: #f8a33a; --s3: #3bb58f; --s4: #a08be0; --s5: #9ccbef; --s6: #e07a8e; --s7: #3d6fa3; --s8: #a3acb5;
+    --grid: #25313d; --ref: #6f7b87;
   }
 }
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --bg: #121211; --surface: #1a1a19; --surface-2: #232321; --line: #34342f;
-  --text: #f0efec; --text-2: #c3c2b7; --muted: #8f8e86; --accent: #6da7ec; --accent-soft: #1d2a3a;
-  --up: #e66767; --down: #6da7ec; --warn-bg: #3a3014; --warn: #f0cf7a;
-  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s6: #0ca30c; --s7: #9085e9; --s8: #e66767;
-  --grid: #2b2b28; --ref: #6f6e68;
+  --bg: #0f141a; --surface: #161d25; --surface-2: #1e2731; --line: #2c3a48;
+  --text: #eef2f6; --text-2: #c0c8d1; --muted: #8b95a0; --accent: #6fb0ec; --accent-soft: #15283c; --accent-2: #f8a33a;
+  --up: #e66767; --down: #6fb0ec; --warn-bg: #3a2a12; --warn: #f5c27a;
+  --s1: #5aa6de; --s2: #f8a33a; --s3: #3bb58f; --s4: #a08be0; --s5: #9ccbef; --s6: #e07a8e; --s7: #3d6fa3; --s8: #a3acb5;
+  --grid: #25313d; --ref: #6f7b87;
 }
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
@@ -42,9 +43,19 @@ body { margin: 0; background: var(--bg); color: var(--text);
   font: 15px/1.6 "Noto Sans KR", "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif; }
 a { color: var(--accent); }
 .wrap { max-width: 1180px; margin: 0 auto; padding: 0 16px; }
-header.top { background: var(--surface); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 5; }
+header.top { background: var(--surface); border-top: 4px solid var(--accent); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 5; }
+header.top::before { content: ""; position: absolute; top: -4px; left: 0; width: 72px; height: 4px; background: var(--accent-2); }
 .top .wrap { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding-top: 10px; padding-bottom: 10px; }
-.brand { font-weight: 700; font-size: 17px; margin-right: auto; }
+.brand { font-weight: 700; font-size: 17px; margin-right: auto; color: var(--accent); display: flex; align-items: center; gap: 12px; }
+.brand .logo { height: 30px; width: auto; display: block; }
+.brand .logo.dark { display: none; }
+:root[data-theme="dark"] .brand .logo.light { display: none; }
+:root[data-theme="dark"] .brand .logo.dark { display: block; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .brand .logo.light { display: none; }
+  :root:not([data-theme="light"]) .brand .logo.dark { display: block; }
+}
+.brand .logo + span { border-left: 1px solid var(--line); padding-left: 12px; }
 .brand small { display: block; font-weight: 400; font-size: 12px; color: var(--muted); }
 select, button { font: inherit; color: var(--text); background: var(--surface); border: 1px solid var(--line);
   border-radius: 8px; padding: 6px 10px; }
@@ -72,7 +83,11 @@ h2 { font-size: 18px; margin: 28px 0 10px; }
 .secnav { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 8px; }
 .secnav a { text-decoration: none; font-size: 13px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; color: var(--text-2); background: var(--surface); }
 section.sec { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; margin: 16px 0; scroll-margin-top: 80px; }
-.sec-h { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; border-bottom: 2px solid var(--accent); padding-bottom: 6px; margin-bottom: 10px; }
+.sec-h { position: relative; display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; border-bottom: 2px solid var(--accent); padding-bottom: 6px; margin-bottom: 10px; }
+.sec-h::after { content: ""; position: absolute; left: 0; bottom: -2px; width: 48px; height: 2px; background: var(--accent-2); }
+.sec-h h2 { color: var(--accent); }
+.hero div { border-top: 3px solid var(--accent); }
+.hero span { color: var(--accent); }
 .sec-h h2 { margin: 0; }
 .sec-h small { color: var(--muted); }
 .headline { font-weight: 700; margin: 12px 0 4px; }
@@ -116,7 +131,7 @@ footer { color: var(--muted); font-size: 12px; padding: 24px 0 40px; border-top:
 <body>
 <header class="top">
   <div class="wrap">
-    <div class="brand">경기경제동향 대시보드<small id="madeAt"></small></div>
+    <div class="brand"><img class="logo light" src="lib/gri_logo.png" alt="경기연구원" onerror="this.remove()"><img class="logo dark" src="lib/gri_logo_white.png" alt="" onerror="this.remove()"><span>경기경제동향 대시보드<small id="madeAt"></small></span></div>
     <label>발간호 <select id="issueSel" aria-label="발간호 선택"></select></label>
     <button id="themeBtn" type="button" aria-label="밝게/어둡게 전환">◐</button>
   </div>
@@ -231,7 +246,7 @@ footer { color: var(--muted); font-size: 12px; padding: 24px 0 40px; border-top:
       h += '<section class="sec" id="s' + i + '"><div class="sec-h"><h2>' + esc(s.title) + '</h2><small>' + esc(s.src) + '</small></div>';
       var open = false;
       s.items.forEach(function (it) {
-        if (it.kind === "headline") { if (open) h += '</ul>'; h += '<p class="headline">■ ' + esc(it.text) + '</p><ul class="bul">'; open = true; }
+        if (it.kind === "headline") { if (open) h += '</ul>'; h += '<p class="headline"><span style="color:var(--accent-2)">■</span> ' + esc(it.text) + '</p><ul class="bul">'; open = true; }
         else { if (!open) { h += '<ul class="bul">'; open = true; } h += '<li' + (it.kind === "missing" ? ' style="color:var(--muted)"' : '') + '>' + esc(it.text) + '</li>'; }
       });
       if (open) h += '</ul>';
